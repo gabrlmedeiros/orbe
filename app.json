@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "orbe",
+    "slug": "orbe",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "habittracker",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE"
+      },
+      "package": "com.coldcode.orbe",
+      "versionCode": 1,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "single"
+    },
+    "icon": "assets/images/icon.png",
+    "splash": {
+      "image": "assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FAFAFB"
+    },
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#FAFAFB",
+          "dark": {
+            "backgroundColor": "#0F172A"
+          }
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "85a8201c-54af-4736-9b35-390e4052554a"
+      }
+    }
+  }
+}
