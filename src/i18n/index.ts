@@ -133,6 +133,11 @@ i18n.translations.en.createTask = {
   removeTime: 'Remove time',
   addTime: 'Add time',
   saveTask: 'Save task',
+  repeat: 'Repeat',
+  repeatNone: 'No repeat',
+  repeatDaily: 'Daily',
+  repeatWeekly: 'Weekly',
+  repeatCustom: 'Custom',
 }
 
 i18n.translations['pt-BR'].createTask = {
@@ -157,6 +162,11 @@ i18n.translations['pt-BR'].createTask = {
   removeTime: 'REMOVER HORÁRIO',
   addTime: 'ADICIONAR HORÁRIO',
   saveTask: 'Salvar tarefa',
+  repeat: 'Repetir',
+  repeatNone: 'Sem repetição',
+  repeatDaily: 'Diário',
+  repeatWeekly: 'Semanal',
+  repeatCustom: 'Personalizado',
 }
 
 i18n.translations.en.createHabit = {
@@ -266,6 +276,21 @@ i18n.translations['pt-BR'].habit = {
   update: 'Atualizar',
   progressToday: 'Progresso hoje: {{percent}}% ({{value}}/{{goal}} {{unit}})'
 }
+
+// Task-specific translations
+i18n.translations.en.task.repeat = 'Repeat'
+i18n.translations.en.task.repeatDaily = 'Daily'
+i18n.translations.en.task.repeatWeekly = 'Weekly'
+i18n.translations.en.task.repeatCustom = 'Custom'
+i18n.translations.en.task.repeatNone = 'No repeat'
+i18n.translations.en.task.history = 'History'
+
+i18n.translations['pt-BR'].task.repeat = 'Repetir'
+i18n.translations['pt-BR'].task.repeatDaily = 'Diário'
+i18n.translations['pt-BR'].task.repeatWeekly = 'Semanal'
+i18n.translations['pt-BR'].task.repeatCustom = 'Personalizado'
+i18n.translations['pt-BR'].task.repeatNone = 'Sem repetição'
+i18n.translations['pt-BR'].task.history = 'Histórico'
 
 i18n.fallbacks = true
 

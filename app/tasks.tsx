@@ -25,7 +25,7 @@ const navigation = useNavigation()
     <Screen>
       <TopBar title={t('tasks.title')} />
       <View style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={{ paddingHorizontal: theme.spacing.md, paddingBottom: 120 }}>
+        <ScrollView contentContainerStyle={{ paddingHorizontal: theme.spacing.md, paddingBottom: 120, flexGrow: 1 }}>
 
           {openTasks.length === 0 ? (
             <Text style={[styles.empty, { color: theme.colors.muted }]}>{t('tasks.noOpen')}</Text>

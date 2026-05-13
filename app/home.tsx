@@ -80,7 +80,7 @@ export default function Home() {
     <Screen>
       <TopBar />
       <View style={{ paddingHorizontal: theme.spacing.md, flex: 1 }}>
-        <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
+        <ScrollView contentContainerStyle={{ paddingBottom: 120, flexGrow: 1 }}>
           {bothEmpty ? (
             <Text style={[styles.empty, { color: theme.colors.muted }]}>{t('home.emptyLong')}</Text>
           ) : (

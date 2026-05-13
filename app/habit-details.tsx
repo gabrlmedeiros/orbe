@@ -61,7 +61,7 @@ export default function HabitDetails() {
   return (
     <Screen>
       <TopBar />
-      <ScrollView contentContainerStyle={{ padding: theme.spacing.md, paddingBottom: 120 }}>
+      <ScrollView contentContainerStyle={{ padding: theme.spacing.md, paddingBottom: 120, flexGrow: 1 }}>
         <View style={styles.row}>
           <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
             <View style={[styles.iconWrap, { backgroundColor: habit.color }]}>

@@ -4,8 +4,8 @@ import { useTheme } from '@/providers/ThemeProvider'
 import { useHabitStore } from '@/store/useHabitStore'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useNavigation, useRoute } from '@react-navigation/native'
-import React, { useEffect, useState } from 'react'
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
+import { BackHandler, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 
 const ALL_ICONS = Object.values(ICON_CATEGORIES).flat()
 
@@ -80,10 +80,36 @@ export default function CreateHabit({ onClose }: Props) {
     setUserPickedColor(true)
   }, [habitId])
 
+  useEffect(() => {
+    const onBack = () => {
+      if (onClose) onClose()
+      else navigation.goBack()
+      return true
+    }
+    if (Platform.OS === 'android') {
+      const sub = BackHandler.addEventListener('hardwareBackPress', onBack)
+      return () => sub.remove()
+    }
+  }, [])
+
+  const scrollRef = useRef<ScrollView | null>(null)
+
+  React.useEffect(() => {
+    const t = setTimeout(() => {
+      scrollRef.current?.scrollTo({ y: 0, animated: false })
+    }, 50)
+    return () => clearTimeout(t)
+  }, [habitId])
+
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }] }>
+      <ScrollView ref={scrollRef} keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background, flexGrow: 1 }] } onContentSizeChange={() => scrollRef.current?.scrollTo({ y: 0, animated: false })}>
         <View style={styles.inner}>
+          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 12 }}>
+            <TouchableOpacity onPress={() => { if (onClose) onClose(); else navigation.goBack() }} style={{ padding: 8 }}>
+              <MaterialCommunityIcons name="close" size={24} color={theme.colors.muted} />
+            </TouchableOpacity>
+          </View>
           <Text style={[styles.label, { color: theme.colors.text }]}>{t('createHabit.title')}</Text>
           <TextInput
             placeholder={t('createHabit.placeholderTitle')}
@@ -179,7 +205,6 @@ export default function CreateHabit({ onClose }: Props) {
             <TextInput placeholder={t('createHabit.placeholderUnit')} placeholderTextColor={theme.colors.muted} value={goalUnit} onChangeText={setGoalUnit} style={[styles.input, { width: 100, borderColor: theme.colors.border, color: theme.colors.text, marginLeft: 8 }]} />
           </View>
 
-          {/* selected preview moved closer to icon/color selection */}
           <View style={styles.previewRow}>
             <View style={[styles.bigPreview, { backgroundColor: color }]}>
               <MaterialCommunityIcons name={icon as any} size={32} color="#fff" />

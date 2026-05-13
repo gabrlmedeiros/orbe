@@ -9,6 +9,30 @@ import { useNavigation, useRoute } from '@react-navigation/native'
 import React from 'react'
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 
+function hexToRgb(hex: string) {
+  const h = hex.replace('#', '')
+  const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h
+  const num = parseInt(full, 16)
+  return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 }
+}
+
+function hexToRgba(hex: string, a: number) {
+  const { r, g, b } = hexToRgb(hex || '#000')
+  return `rgba(${r}, ${g}, ${b}, ${a})`
+}
+
+function getDaysBetween(start: Date, end: Date) {
+  const out: Date[] = []
+  const s = new Date(start)
+  s.setHours(0, 0, 0, 0)
+  const e = new Date(end)
+  e.setHours(0, 0, 0, 0)
+  for (let d = new Date(s); d <= e; d.setDate(d.getDate() + 1)) {
+    out.push(new Date(d))
+  }
+  return out
+}
+
 export default function TaskDetails() {
   const route = useRoute()
   const navigation = useNavigation()
@@ -30,7 +54,7 @@ export default function TaskDetails() {
   return (
     <Screen>
       <TopBar />
-      <ScrollView contentContainerStyle={{ padding: theme.spacing.md, paddingBottom: 120 }}>
+      <ScrollView contentContainerStyle={{ padding: theme.spacing.md, paddingBottom: 120, flexGrow: 1 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <Text style={{ color: theme.colors.text, fontSize: 20, fontWeight: '700' }}>{task.title}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -77,6 +101,41 @@ export default function TaskDetails() {
           } else formatted = `${mins}m`
           return <Text style={{ color: theme.colors.muted, marginTop: 12 }}>{t('duration.label', { value: formatted })}</Text>
         })() : null}
+
+        <View style={{ marginTop: 16 }}>
+          <Text style={{ color: theme.colors.muted }}>{t('task.repeat')}</Text>
+          <Text style={{ color: theme.colors.text, marginTop: 6 }}>{
+            task.frequency === 'daily' ? t('task.repeatDaily') : task.frequency === 'weekly' ? t('task.repeatWeekly') : task.frequency === 'custom' ? t('task.repeatCustom') : t('task.repeatNone')
+          }</Text>
+        </View>
+
+        {task.frequency && task.frequency !== 'none' ? (
+          <View style={{ marginTop: 20 }}>
+            <Text style={{ color: theme.colors.text, fontWeight: '700' }}>{t('task.history')}</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 8 }}>
+              {getDaysBetween(new Date(task.createdAt), new Date()).map((d) => {
+                const iso = require('@/utils/date').localIso(d)
+                const done = !!(task.completedHistory && task.completedHistory[iso])
+                const bg = done ? hexToRgba(theme.colors.primary, 0.9) : 'transparent'
+                const border = done ? 'transparent' : theme.colors.border
+                return (
+                  <View
+                    key={iso}
+                    style={{
+                      width: 18,
+                      height: 18,
+                      margin: 3,
+                      borderRadius: 4,
+                      backgroundColor: bg,
+                      borderWidth: 1,
+                      borderColor: border,
+                    }}
+                  />
+                )
+              })}
+            </View>
+          </View>
+        ) : null}
 
         <View style={{ marginTop: 20, flexDirection: 'row', justifyContent: 'flex-end' }}>
             <TouchableOpacity

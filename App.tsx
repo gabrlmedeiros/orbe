@@ -1,3 +1,4 @@
+import { DEMO_MODE } from '@/config/env'
 import { t } from '@/i18n'
 import { ThemeProvider, useTheme } from '@/providers/ThemeProvider'
 import ToastProvider from '@/providers/ToastProvider'
@@ -21,8 +22,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { enableScreens } from 'react-native-screens'
 
 enableScreens()
-
-const FORCE_ONBOARDING_FOR_TESTS = false
 
 export type RootStackParamList = {
   Root: undefined
@@ -75,7 +74,7 @@ export default function App() {
 
   useEffect(() => {
     const t = setTimeout(() => setShowSplash(false), 800)
-    if (FORCE_ONBOARDING_FOR_TESTS) {
+    if (DEMO_MODE) {
       setShowOnboarding(true)
     } else {
       ;(async () => {

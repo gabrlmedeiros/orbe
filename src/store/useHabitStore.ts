@@ -1,4 +1,6 @@
+import { DEMO_MODE } from '@/config/env'
 import { COLOR_PALETTE } from '@/constants/theme'
+import { demoHabits } from '@/mocks/demoData'
 import { Habit } from '@/types/habit'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { create } from 'zustand'
@@ -25,7 +27,7 @@ type HabitStore = {
 export const useHabitStore = create<HabitStore>()(
   persist(
     (set) => ({
-      habits: [],
+      habits: DEMO_MODE ? demoHabits : [],
 
       addHabit: (payload) =>
         set((state) => ({

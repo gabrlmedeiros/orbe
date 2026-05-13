@@ -2,12 +2,12 @@ import DurationCarousel from '@/components/ui/duration-carousel'
 import i18n, { t } from '@/i18n'
 import { useTheme } from '@/providers/ThemeProvider'
 import { useTaskStore } from '@/store/useTaskStore'
+import { toLocalDateStart } from '@/utils/date'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import DateTimePicker from '@react-native-community/datetimepicker'
-import { toLocalDateStart } from '@/utils/date'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import React, { useState } from 'react'
-import { KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { BackHandler, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 
 type Props = { onClose?: () => void }
 
@@ -19,6 +19,8 @@ export default function CreateTask({ onClose }: Props) {
   const [notes, setNotes] = useState('')
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium')
   const [duration, setDuration] = useState<number | null>(null)
+  const [frequency, setFrequency] = useState<'none' | 'daily' | 'weekly' | 'custom'>('none')
+  const [days, setDays] = useState<number[] | undefined>(undefined)
   const [showDurationModal, setShowDurationModal] = useState(false)
   const [showCustomDuration, setShowCustomDuration] = useState(false)
   const [customDurationMinutes, setCustomDurationMinutes] = useState('')
@@ -31,6 +33,28 @@ export default function CreateTask({ onClose }: Props) {
   const navigation = useNavigation()
   const { theme } = useTheme()
   const addTask = useTaskStore((s) => s.addTask)
+
+  const weekdaysShort = React.useMemo(() => {
+    try {
+      const base = new Date(2023, 0, 1) 
+      const fmt = new Intl.DateTimeFormat(i18n.locale || undefined, { weekday: 'short' })
+      return Array.from({ length: 7 }, (_, i) => fmt.format(new Date(base.getFullYear(), base.getMonth(), base.getDate() + i)))
+    } catch (e) {
+      return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    }
+  }, [i18n.locale])
+
+  React.useEffect(() => {
+    const onBack = () => {
+      if (onClose) onClose()
+      else navigation.goBack()
+      return true
+    }
+    if (Platform.OS === 'android') {
+      const sub = BackHandler.addEventListener('hardwareBackPress', onBack)
+      return () => sub.remove()
+    }
+  }, [])
 
   function handleSave() {
     if (!title.trim()) return
@@ -49,9 +73,9 @@ export default function CreateTask({ onClose }: Props) {
 
     const durVal = duration ?? null
     if (editingId && editTask) {
-      useTaskStore.getState().updateTask(editingId, { title: title.trim(), notes: notes.trim() || undefined, priority, dueAt, allDay, duration: durVal })
+      useTaskStore.getState().updateTask(editingId, { title: title.trim(), notes: notes.trim() || undefined, priority, dueAt, allDay, duration: durVal, frequency, days })
     } else {
-      addTask({ title: title.trim(), notes: notes.trim() || undefined, priority, dueAt, allDay, duration: durVal })
+      addTask({ title: title.trim(), notes: notes.trim() || undefined, priority, dueAt, allDay, duration: durVal, frequency, days })
     }
     if (onClose) onClose()
     else navigation.goBack()
@@ -63,6 +87,8 @@ export default function CreateTask({ onClose }: Props) {
       setNotes(editTask.notes ?? '')
       setPriority(editTask.priority)
       setDuration(editTask.duration ?? null)
+      setFrequency((editTask as any).frequency ?? 'none')
+      setDays((editTask as any).days)
       let sd: Date | null = null
       if (editTask.dueAt) {
         sd = editTask.allDay ? toLocalDateStart(editTask.dueAt) : new Date(editTask.dueAt)
@@ -78,6 +104,7 @@ export default function CreateTask({ onClose }: Props) {
     }
   }, [editingId])
 
+
   function formatSelected() {
     if (!selectedDate) return 'Agendar'
     const date = new Intl.DateTimeFormat(i18n.locale || undefined, { dateStyle: 'short' }).format(selectedDate)
@@ -88,8 +115,13 @@ export default function CreateTask({ onClose }: Props) {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background }] }>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background, flexGrow: 1 }] }>
         <View style={styles.inner}>
+          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 12 }}>
+            <TouchableOpacity onPress={() => { if (onClose) onClose(); else navigation.goBack() }} style={{ padding: 8 }}>
+              <MaterialCommunityIcons name="close" size={24} color={theme.colors.muted} />
+            </TouchableOpacity>
+          </View>
           <Text style={[styles.label, { color: theme.colors.text }]}>{t('createTask.title')}</Text>
           <TextInput placeholder="Ex: Comprar mantimentos" placeholderTextColor={theme.colors.muted} value={title} onChangeText={setTitle} style={[styles.input, { borderColor: theme.colors.border, color: theme.colors.text }]} />
           <Text style={[styles.label, { color: theme.colors.text }]}>{t('createTask.description')}</Text>
@@ -103,6 +135,32 @@ export default function CreateTask({ onClose }: Props) {
               </TouchableOpacity>
             ))}
           </View>
+
+          <Text style={[styles.label, { color: theme.colors.text }]}>{t('createTask.repeat')}</Text>
+          <View style={{ flexDirection: 'row', marginBottom: 12 }}>
+            {(['none','daily','weekly','custom'] as const).map((f) => (
+              <TouchableOpacity key={f} onPress={() => setFrequency(f)} style={[styles.freqButton, frequency === f && { borderColor: theme.colors.primary }]}> 
+                <Text style={{ color: theme.colors.text }}>{f === 'none' ? t('createTask.repeatNone') : f === 'daily' ? t('createTask.repeatDaily') : f === 'weekly' ? t('createTask.repeatWeekly') : t('createTask.repeatCustom') }</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {frequency === 'custom' && (
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 12 }}>
+              {weekdaysShort.map((d, idx) => {
+                const dayNum = idx + 1
+                const on = days?.includes(dayNum)
+                return (
+                  <TouchableOpacity key={d} onPress={() => {
+                    const next = on ? (days ?? []).filter(x => x !== dayNum) : [...(days ?? []), dayNum]
+                    setDays(next.length ? next : undefined)
+                  }} style={[styles.dayButton, on && { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary }]}>
+                    <Text style={{ color: on ? '#fff' : theme.colors.text }}>{d}</Text>
+                  </TouchableOpacity>
+                )
+              })}
+            </View>
+          )}
 
           <Text style={[styles.label, { color: theme.colors.text }]}>{t('createTask.duration')}</Text>
           <TouchableOpacity onPress={() => { setTempDurationMinutes(duration ? Math.round(duration * 60) : null); setShowDurationModal(true) }} style={[styles.input, { borderColor: theme.colors.border, justifyContent: 'center' }]}> 
@@ -252,6 +310,7 @@ const styles = StyleSheet.create({
   input: { borderWidth: 1, padding: 10, borderRadius: 8, marginBottom: 16 },
   label: { marginBottom: 8, fontWeight: '600' },
   freqButton: { paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: 'transparent', borderRadius: 8, marginRight: 8 },
+  dayButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: 8, marginRight: 8, marginBottom: 8, borderWidth: 1, borderColor: 'transparent' },
   saveButton: { marginTop: 24, paddingVertical: 12, marginBottom: 48, borderRadius: 8, alignItems: 'center' },
   saveText: { color: '#fff', fontWeight: '700' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'center', padding: 20 },

@@ -7,6 +7,9 @@ export type Task = {
   allDay?: boolean
   completed?: boolean
   completedAt?: string | null
+  frequency?: 'none' | 'daily' | 'weekly' | 'custom'
+  days?: number[]
+  completedHistory?: Record<string, boolean>
   duration?: number | null
   createdAt: string
 }
