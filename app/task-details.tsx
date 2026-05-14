@@ -8,6 +8,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import React from 'react'
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 function hexToRgb(hex: string) {
   const h = hex.replace('#', '')
@@ -42,6 +43,8 @@ export default function TaskDetails() {
   const toggle = useTaskStore((s) => s.toggleComplete)
   const update = useTaskStore((s) => s.updateTask)
 
+  const insets = useSafeAreaInsets()
+
     if (!task) return (
     <Screen>
       <TopBar />
@@ -54,7 +57,7 @@ export default function TaskDetails() {
   return (
     <Screen>
       <TopBar />
-      <ScrollView contentContainerStyle={{ padding: theme.spacing.md, paddingBottom: 120, flexGrow: 1 }}>
+      <ScrollView contentContainerStyle={{ padding: theme.spacing.md, paddingBottom: Math.max(56, insets.bottom + theme.spacing.md + 16), flexGrow: 1 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <Text style={{ color: theme.colors.text, fontSize: 20, fontWeight: '700' }}>{task.title}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>

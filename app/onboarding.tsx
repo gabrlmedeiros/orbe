@@ -3,7 +3,8 @@ import { useTheme } from '@/providers/ThemeProvider'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import React, { useState } from 'react'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const PAGES = [
   { titleKey: 'onboarding.page1.title', descKey: 'onboarding.page1.desc', icon: 'orbit' },
@@ -16,6 +17,9 @@ type Props = { onFinish?: () => void }
 export default function Onboarding({ onFinish }: Props) {
   const [index, setIndex] = useState(0)
   const { theme } = useTheme()
+  const insets = useSafeAreaInsets()
+  const { height } = useWindowDimensions()
+  const centerContent = height < 700
 
   async function finish() {
     try { await AsyncStorage.setItem('seenOnboarding', '1') } catch (e) { /* ignore */ }
@@ -23,8 +27,8 @@ export default function Onboarding({ onFinish }: Props) {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }] }>
-      <View style={styles.content}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background, paddingBottom: 24 + insets.bottom }] }>
+      <View style={[styles.content, centerContent ? { justifyContent: 'center' } : { paddingTop: 24 }] }>
         <View style={[styles.iconWrap, { backgroundColor: theme.colors.primary }]}> 
           <MaterialCommunityIcons name={PAGES[index].icon as any} size={48} color="#fff" />
         </View>
@@ -32,7 +36,7 @@ export default function Onboarding({ onFinish }: Props) {
         <Text style={[styles.desc, { color: theme.colors.muted }]}>{t(PAGES[index].descKey)}</Text>
       </View>
 
-      <View style={[styles.actions, { backgroundColor: 'transparent' }]}> 
+      <View style={[styles.actions, { backgroundColor: 'transparent', bottom: 24 + insets.bottom }]}> 
         {index > 0 ? (
           <TouchableOpacity onPress={() => setIndex((s) => Math.max(0, s - 1))}>
             <Text style={{ color: theme.colors.muted }}>{t('onboarding.back')}</Text>
@@ -65,7 +69,7 @@ export default function Onboarding({ onFinish }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 24, justifyContent: 'center' },
-  content: { alignItems: 'center', marginBottom: 140 },
+  content: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   iconWrap: { width: 110, height: 110, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginBottom: 18 },
   title: { fontSize: 24, fontWeight: '800', marginBottom: 8 },
   desc: { fontSize: 16, textAlign: 'center', maxWidth: 360 },

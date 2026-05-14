@@ -10,10 +10,12 @@ import { showToast } from '@/utils/toastService'
 import { useNavigation } from '@react-navigation/native'
 import React from 'react'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export default function Tasks() {
 const navigation = useNavigation()
   const { theme } = useTheme()
+  const insets = useSafeAreaInsets()
   const tasks = useTaskStore((s) => s.tasks)
   const toggle = useTaskStore((s) => s.toggleComplete)
   const [showCompleted, setShowCompleted] = React.useState(false)
@@ -25,7 +27,7 @@ const navigation = useNavigation()
     <Screen>
       <TopBar title={t('tasks.title')} />
       <View style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={{ paddingHorizontal: theme.spacing.md, paddingBottom: 120, flexGrow: 1 }}>
+        <ScrollView contentContainerStyle={{ paddingHorizontal: theme.spacing.md, paddingBottom: Math.max(56, insets.bottom + theme.spacing.md + 16), flexGrow: 1 }}>
 
           {openTasks.length === 0 ? (
             <Text style={[styles.empty, { color: theme.colors.muted }]}>{t('tasks.noOpen')}</Text>

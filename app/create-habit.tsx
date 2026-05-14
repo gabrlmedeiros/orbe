@@ -6,6 +6,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import React, { useEffect, useRef, useState } from 'react'
 import { BackHandler, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 const ALL_ICONS = Object.values(ICON_CATEGORIES).flat()
 
@@ -24,6 +25,7 @@ export default function CreateHabit({ onClose }: Props) {
   const habitId = (route.params as any)?.habitId
   const navigation = useNavigation()
   const { theme } = useTheme()
+  const insets = useSafeAreaInsets()
   const [color, setColor] = useState(theme.colors.primary)
   const [category, setCategory] = useState('')
   const [frequency, setFrequency] = useState<'daily' | 'weekly' | 'custom'>('daily')
@@ -101,9 +103,11 @@ export default function CreateHabit({ onClose }: Props) {
     return () => clearTimeout(t)
   }, [habitId])
 
+  const saveButtonMarginBottom = Math.max(48, insets.bottom + theme.spacing.md + 24)
+
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView ref={scrollRef} keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background, flexGrow: 1 }] } onContentSizeChange={() => scrollRef.current?.scrollTo({ y: 0, animated: false })}>
+      <ScrollView ref={scrollRef} keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background, flexGrow: 1, paddingBottom: saveButtonMarginBottom }] } onContentSizeChange={() => scrollRef.current?.scrollTo({ y: 0, animated: false })}>
         <View style={styles.inner}>
           <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 12 }}>
             <TouchableOpacity onPress={() => { if (onClose) onClose(); else navigation.goBack() }} style={{ padding: 8 }}>
@@ -215,7 +219,7 @@ export default function CreateHabit({ onClose }: Props) {
             </View>
           </View>
 
-          <TouchableOpacity style={[styles.saveButton, { backgroundColor: theme.colors.primary }]} onPress={handleCreate}>
+          <TouchableOpacity style={[styles.saveButton, { backgroundColor: theme.colors.primary, marginBottom: saveButtonMarginBottom }]} onPress={handleCreate}>
             <Text style={styles.saveText}>{t('createHabit.save')}</Text>
           </TouchableOpacity>
         </View>
@@ -239,7 +243,7 @@ const styles = StyleSheet.create({
   bigPreview: { width: 64, height: 64, borderRadius: 16, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 6, elevation: 3 },
   previewLabel: { marginRight: 12 },
   previewIcon: { width: 56, height: 56, borderRadius: 8, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
-  saveButton: { marginTop: 24, paddingVertical: 12, marginBottom: 48, borderRadius: 8, alignItems: 'center' },
+  saveButton: { marginTop: 24, paddingVertical: 12, borderRadius: 8, alignItems: 'center' },
   saveText: { color: '#fff', fontWeight: '700' },
   freqRow: { flexDirection: 'row', marginVertical: 8 },
   freqButton: { paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: 'transparent', borderRadius: 8, marginRight: 8 },

@@ -8,6 +8,7 @@ import DateTimePicker from '@react-native-community/datetimepicker'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import React, { useState } from 'react'
 import { BackHandler, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 type Props = { onClose?: () => void }
 
@@ -32,6 +33,7 @@ export default function CreateTask({ onClose }: Props) {
 
   const navigation = useNavigation()
   const { theme } = useTheme()
+  const insets = useSafeAreaInsets()
   const addTask = useTaskStore((s) => s.addTask)
 
   const weekdaysShort = React.useMemo(() => {
@@ -113,9 +115,11 @@ export default function CreateTask({ onClose }: Props) {
     return hasTime ? `${date} ${time}` : date
   }
 
+  const saveButtonMarginBottom = Math.max(48, insets.bottom + theme.spacing.md + 24)
+
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background, flexGrow: 1 }] }>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.container, { backgroundColor: theme.colors.background, flexGrow: 1, paddingBottom: saveButtonMarginBottom }] }>
         <View style={styles.inner}>
           <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 12 }}>
             <TouchableOpacity onPress={() => { if (onClose) onClose(); else navigation.goBack() }} style={{ padding: 8 }}>
@@ -295,7 +299,7 @@ export default function CreateTask({ onClose }: Props) {
             </View>
           </Modal>
 
-          <TouchableOpacity style={[styles.saveButton, { backgroundColor: theme.colors.primary }]} onPress={handleSave}>
+          <TouchableOpacity style={[styles.saveButton, { backgroundColor: theme.colors.primary, marginBottom: saveButtonMarginBottom }]} onPress={handleSave}>
             <Text style={styles.saveText}>{t('createTask.saveTask')}</Text>
           </TouchableOpacity>
         </View>
@@ -311,7 +315,7 @@ const styles = StyleSheet.create({
   label: { marginBottom: 8, fontWeight: '600' },
   freqButton: { paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: 'transparent', borderRadius: 8, marginRight: 8 },
   dayButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: 8, marginRight: 8, marginBottom: 8, borderWidth: 1, borderColor: 'transparent' },
-  saveButton: { marginTop: 24, paddingVertical: 12, marginBottom: 48, borderRadius: 8, alignItems: 'center' },
+  saveButton: { marginTop: 24, paddingVertical: 12, borderRadius: 8, alignItems: 'center' },
   saveText: { color: '#fff', fontWeight: '700' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'center', padding: 20 },
   modalContent: { borderRadius: 12, overflow: 'hidden' },

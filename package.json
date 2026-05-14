@@ -28,6 +28,7 @@
     "react-native-gesture-handler": "~2.28.0",
     "react-native-localize": "^3.7.0",
     "react-native-safe-area-context": "~5.6.0",
+    "react-native-extra-dimensions-android": "^1.0.7",
     "react-native-screens": "~4.16.0",
     "zustand": "^5.0.13"
   },

@@ -13,6 +13,7 @@ import { showToast } from '@/utils/toastService'
 import { useNavigation } from '@react-navigation/native'
 import React from 'react'
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 function isoDate(dateString: string) {
   return dateString.split('T')[0]
@@ -23,6 +24,7 @@ export default function Home() {
   const setCompletion = useHabitStore((s) => s.setCompletion)
   const navigation = useNavigation()
   const { theme } = useTheme()
+  const insets = useSafeAreaInsets()
 
   const today = localIso()
 
@@ -80,7 +82,7 @@ export default function Home() {
     <Screen>
       <TopBar />
       <View style={{ paddingHorizontal: theme.spacing.md, flex: 1 }}>
-        <ScrollView contentContainerStyle={{ paddingBottom: 120, flexGrow: 1 }}>
+        <ScrollView contentContainerStyle={{ paddingBottom: Math.max(56, insets.bottom + theme.spacing.md + 16), flexGrow: 1 }}>
           {bothEmpty ? (
             <Text style={[styles.empty, { color: theme.colors.muted }]}>{t('home.emptyLong')}</Text>
           ) : (

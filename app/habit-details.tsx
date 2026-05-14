@@ -9,6 +9,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import React from 'react'
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 function hexToRgb(hex: string) {
   const h = hex.replace('#', '')
@@ -42,6 +43,8 @@ export default function HabitDetails() {
   const habit = useHabitStore((s) => s.habits.find((h) => h.id === habitId))
   const setCompletion = useHabitStore((s) => s.setCompletion)
 
+  const insets = useSafeAreaInsets()
+
   const todayIso = localIso()
   const todayAmount = habit ? (habit.completed?.[todayIso] ?? 0) : 0
   const [amount, setAmount] = React.useState(String(todayAmount || ''))
@@ -61,7 +64,7 @@ export default function HabitDetails() {
   return (
     <Screen>
       <TopBar />
-      <ScrollView contentContainerStyle={{ padding: theme.spacing.md, paddingBottom: 120, flexGrow: 1 }}>
+      <ScrollView contentContainerStyle={{ padding: theme.spacing.md, paddingBottom: Math.max(56, insets.bottom + theme.spacing.md + 16), flexGrow: 1 }}>
         <View style={styles.row}>
           <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
             <View style={[styles.iconWrap, { backgroundColor: habit.color }]}>

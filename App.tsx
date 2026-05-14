@@ -2,6 +2,7 @@ import { DEMO_MODE } from '@/config/env'
 import { t } from '@/i18n'
 import { ThemeProvider, useTheme } from '@/providers/ThemeProvider'
 import ToastProvider from '@/providers/ToastProvider'
+import { getAndroidNavBarHeight } from '@/utils/androidExtra'
 import { Ionicons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
@@ -16,9 +17,10 @@ import Onboarding from 'app/onboarding'
 import Splash from 'app/splash'
 import Tasks from 'app/tasks'
 import React, { useEffect, useState } from 'react'
+import { Platform } from 'react-native'
 import 'react-native-gesture-handler'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { enableScreens } from 'react-native-screens'
 
 enableScreens()
@@ -36,6 +38,18 @@ const Tab = createBottomTabNavigator()
 
 function Tabs() {
   const { theme } = useTheme()
+  const insets = useSafeAreaInsets()
+  const { width } = require('react-native').useWindowDimensions()
+  const isTabletWidth = width >= 700
+  const [androidNavBar, setAndroidNavBar] = React.useState(0)
+
+  React.useEffect(() => {
+    if (Platform.OS === 'android') {
+      const h = getAndroidNavBarHeight()
+      setAndroidNavBar(h || 0)
+    }
+  }, [])
+  const effectiveInsetBottom = Math.max(insets.bottom, Platform.OS === 'android' ? androidNavBar : 0)
 
   return (
     <Tab.Navigator
@@ -51,10 +65,11 @@ function Tabs() {
         tabBarActiveTintColor: theme.colors.primary,
         tabBarStyle: {
           backgroundColor: theme.colors.surface,
-          elevation: 0,
-          shadowOpacity: 0,
-          paddingTop: 6,
-          paddingBottom: 6,
+          elevation: 8,
+          shadowOpacity: 0.08,
+          paddingTop: isTabletWidth ? 10 : 6,
+          paddingBottom: effectiveInsetBottom + (isTabletWidth ? 18 : 12),
+          borderTopWidth: 0,
         },
         tabBarLabelStyle: { fontSize: 12, marginBottom: 2 },
         tabBarIconStyle: { marginTop: 2 },

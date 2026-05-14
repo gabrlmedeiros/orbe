@@ -12,10 +12,19 @@ try {
   expoExtra = undefined
 }
 
+let appJsonExtra: any = undefined
+try {
+  const appJson = require('../../app.json')
+  appJsonExtra = appJson?.expo?.extra
+} catch (e) {
+  appJsonExtra = undefined
+}
+
 const raw = (typeof process !== 'undefined' && (process as any).env) || {}
 
 export let DEMO_MODE: boolean =
   truthy(expoExtra?.REACT_APP_DEMO_MODE ?? expoExtra?.DEMO_MODE ?? expoExtra?.EXPO_DEMO_MODE) ||
+  truthy(appJsonExtra?.REACT_APP_DEMO_MODE ?? appJsonExtra?.DEMO_MODE ?? appJsonExtra?.EXPO_DEMO_MODE) ||
   truthy(raw.REACT_APP_DEMO_MODE ?? raw.DEMO_MODE ?? raw.EXPO_DEMO_MODE)
 
 export default {
