@@ -15,7 +15,7 @@
         "backgroundColor": "#E6F4FE"
       },
       "package": "com.coldcode.orbe",
-      "versionCode": 2,
+      "versionCode": 3,
       "predictiveBackGestureEnabled": false
     },
     "web": {
